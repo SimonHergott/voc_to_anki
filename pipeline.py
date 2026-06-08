@@ -15,6 +15,7 @@ class VocabItem(BaseModel):
     lecture: str
     traduction: str
     precision: str
+    kanji: str
 
 class VocabList(BaseModel): # double wrapper pour le schema du google de ses morts
     vocabulaire: List[VocabItem]
@@ -66,7 +67,8 @@ class VocPipeline:
             fields=[
                 {'name': 'Question'},
                 {'name': 'Answer'},
-                {'name': 'Precision'}, # Nouveau champ
+                {'name': 'Precision'},
+                {'name': 'Kanji'},
             ],
             templates=[
                 {
@@ -78,7 +80,13 @@ class VocPipeline:
                                <div style="font-size: 16px; color: #7f8c8d; font-style: italic; margin-top: 10px;">
                                  Note : {{Precision}}
                                </div>
-                               {{/Precision}}''',
+                               {{/Precision}}
+                               {{#Kanji}}
+                               <div style="font-size: 15px; color: #8e44ad; margin-top: 14px;">
+                                 <div style="font-weight: bold; margin-bottom: 4px;">漢字情報</div>
+                                 {{Kanji}}
+                               </div>
+                               {{/Kanji}}''',
                 },
             ],
             css='.card { font-family: arial; font-size: 20px; text-align: center; color: black; background-color: white; }'
@@ -94,12 +102,13 @@ class VocPipeline:
             lecture = item.get("lecture", "")
             traduction = item.get("traduction", "")
             precision = item.get("precision", "")
+            kanji = item.get("kanji", "")
             
             answer_html = f"<div style='color: #2ecc71; font-size: 25px;'>{lecture}</div><br>{traduction}"
             
             my_note = genanki.Note(
                 model=my_model,
-                fields=[original, answer_html, precision]
+                fields=[original, answer_html, precision, kanji]
             )
             my_deck.add_note(my_note)
 
